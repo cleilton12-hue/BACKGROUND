@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Online | Pagamento PIX</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- TOPO / HEADER -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-black text-xl">
+          ⚡
+        </div>
+        <div>
+          <h1 id="brand-name" class="font-bold text-lg leading-tight tracking-tight text-white">Minha Loja Virtual</h1>
+          <p class="text-xs text-emerald-400 flex items-center gap-1">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Pagamento Instantâneo via PIX
+          </p>
+        </div>
+      </div>
+
+      <!-- Barra de Pesquisa Rápida -->
+      <div class="relative flex-1 max-w-xs hidden sm:block">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input 
+          type="text" 
+          id="search-input"
+          placeholder="Buscar produto..." 
+          class="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+        />
+      </div>
+
+      <!-- Botão Suporte WhatsApp -->
+      <a 
+        id="whatsapp-header-btn" 
+        href="#" 
+        target="_blank" 
+        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs sm:text-sm px-3.5 py-2 rounded-xl transition shadow-lg shadow-emerald-950/40"
+      >
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
+        <span>Atendimento</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- BANNER DE DESTAQUE -->
+  <section class="relative bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800/60 py-10 px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto text-center space-y-3">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <i data-lucide="zap" class="w-3.5 h-3.5"></i> Aprovação em Segundos
+      </span>
+      <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+        Escolha o produto, pague via PIX e receba com rapidez.
+      </h2>
+      <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+        Clique na imagem ou no botão do item desejado para abrir o QR Code, Chave Copia e Cola ou link de checkout direto.
+      </p>
+    </div>
+  </section>
+
+  <!-- FILTROS POR CATEGORIA -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div id="category-filters" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <!-- Injetado via JavaScript -->
+    </div>
+  </div>
+
+  <!-- GRID DE PRODUTOS -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Injetado via JavaScript -->
+    </div>
+
+    <!-- Feedback caso não encontre busca -->
+    <div id="empty-state" class="hidden text-center py-20">
+      <i data-lucide="package-search" class="w-12 h-12 mx-auto text-slate-600 mb-3"></i>
+      <h3 class="text-slate-300 font-semibold text-lg">Nenhum produto encontrado</h3>
+      <p class="text-slate-500 text-sm mt-1">Tente pesquisar com outro termo ou selecionar outra categoria.</p>
+    </div>
+  </main>
+
+  <!-- RODAPÉ -->
+  <footer class="bg-slate-900 border-t border-slate-800 mt-auto py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <p>© <span id="year"></span> <span id="footer-brand">Minha Loja</span>. Todos os direitos reservados.</p>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> Compra Segura</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i> Pagamentos via PIX</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL DE CHECKOUT PIX -->
+  <div id="pix-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white leading-tight">Pagamento via PIX</h3>
+            <p class="text-xs text-slate-400">Escaneie o código ou use o Copia e Cola</p>
+          </div>
+        </div>
+        <button onclick="closePixModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Corpo do Modal -->
+      <div class="p-6 space-y-5">
+        <!-- Resumo do Produto Selecionado -->
+        <div class="flex items-center gap-3.5 bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+          <img id="modal-product-img" src="" alt="Produto" class="w-14 h-14 rounded-lg object-cover bg-slate-700" />
+          <div class="min-w-0 flex-1">
+            <h4 id="modal-product-title" class="font-semibold text-sm text-slate-100 truncate">Título do Produto</h4>
+            <p id="modal-product-price" class="text-emerald-400 font-bold text-base mt-0.5">R$ 0,00</p>
+          </div>
+        </div>
+
+        <!-- Renderizador do QR Code -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="bg-white p-3 rounded-2xl shadow-inner border border-slate-200">
+            <div id="qrcode-container" class="flex items-center justify-center min-w-[180px] min-h-[180px]"></div>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-2">Abra o app do seu banco e aponte a câmera</span>
+        </div>
+
+        <!-- Campo Pix Copia e Cola -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-medium text-slate-300">Código PIX Copia e Cola:</label>
+          <div class="flex items-center gap-2">
+            <input 
+              id="pix-code-input" 
+              type="text" 
+              readonly 
+              class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 font-mono truncate focus:outline-none"
+            />
+            <button 
+              id="copy-pix-btn" 
+              onclick="copyPixCode()" 
+              class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shrink-0"
+            >
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span id="copy-btn-text">Copiar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ações Adicionais (Link Gateway / WhatsApp) -->
+        <div class="space-y-2 pt-2 border-t border-slate-800/80">
+          <a 
+            id="modal-direct-link" 
+            href="#" 
+            target="_blank" 
+            class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition"
+          >
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+            <span>Pagar via Link de Pagamento Direto</span>
+          </a>
+
+          <a 
+            id="modal-whatsapp-confirm" 
+            href="#" 
+            target="_blank" 
+            class="w-full bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition"
+          >
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>Enviar comprovante no WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONFIGURAÇÃO E DADOS DOS PRODUTOS          -->
+  <!-- ========================================== -->
+  <script>
+    // 1. CONFIGURAÇÕES DA LOJA
+    const CONFIG = {
+      nomeLoja: "Minha Loja Digital",
+      whatsappNumero: "5595999999999", // Código do país + DDD + Número (apenas dígitos)
+      chavePixPadrao: "seu-email-ou-chave-pix@exemplo.com", // Chave PIX padrão (se não usar código EMV por produto)
+    };
+
+    // 2. CADASTRO DE PRODUTOS
+    // - Para usar fotos salvas na mesma pasta do GitHub: imagem: "foto1.jpg"
+    // - pixCopiaECola: insira a linha de código do Copia e Cola gerada no seu banco
+    // - linkCheckout: se tiver um link gerado no Mercado Pago / InfinitePay / Asaas / PagSeguro
+    const PRODUTOS = [
+      {
+        id: 1,
+        titulo: "Microfone Condensador Studio Pro",
+        descricao: "Ideal para podcast, transmissões ao vivo e gravações profissionais de áudio.",
+        preco: 289.90,
+        categoria: "Áudio & Vídeo",
+        imagem: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=600&q=80",
+        pixCopiaECola: "00020126580014br.gov.bcb.pix0136sua-chave-pix-aqui5204000053039865406289.905802BR5915NOME DA LOJA6008BOA VISTA62070503***6304E1D2",
+        linkCheckout: "https://mpago.la/exemplo1"
+      },
+      {
+        id: 2,
+        titulo: "Placa de Captura Cam Link 4K USB",
+        descricao: "Transmita suas câmeras DSLR ou filmadoras em tempo real direto para o OBS e vMix.",
+        preco: 145.00,
+        categoria: "Transmissão",
+        imagem: "https://images.unsplash.com/photo-1544652478-6653e09f18a2?auto=format&fit=crop&w=600&q=80",
+        pixCopiaECola: "00020126580014br.gov.bcb.pix0136sua-chave-pix-aqui5204000053039865406145.005802BR5915NOME DA LOJA6008BOA VISTA62070503***6304F2A1",
+        linkCheckout: "https://mpago.la/exemplo2"
+      },
+      {
+        id: 3,
+        titulo: "Iluminador LED RGB Portátil 2500K-9000K",
+        descricao: "Compacto com sapata fria e bateria recarregável para iluminação de estúdio móvel.",
+        preco: 119.50,
+        categoria: "Iluminação",
+        imagem: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80",
+        pixCopiaECola: "00020126580014br.gov.bcb.pix0136sua-chave-pix-aqui5204000053039865406119.505802BR5915NOME DA LOJA6008BOA VISTA62070503***6304C7B8",
+        linkCheckout: "https://mpago.la/exemplo3"
+      },
+      {
+        id: 4,
+        titulo: "Suporte Articulado para Microfone de Mesa",
+        descricao: "Braço pantográfico resistente em metal com molas internas e rotação de 360°.",
+        preco: 85.00,
+        categoria: "Acessórios",
+        imagem: "https://images.unsplash.com/photo-1520523839898-507121c210e7?auto=format&fit=crop&w=600&q=80",
+        pixCopiaECola: "00020126580014br.gov.bcb.pix0136sua-chave-pix-aqui520400005303986540585.005802BR5915NOME DA LOJA6008BOA VISTA62070503***63049F3A",
+        linkCheckout: "https://mpago.la/exemplo4"
+      }
+    ];
+
+    // ==========================================
+    // LÓGICA DE FUNCIONAMENTO DA PÁGINA
+    // ==========================================
+    let categoriaAtiva = "Todas";
+    let termoBusca = "";
+    let qrcodeInstance = null;
+
+    // Inicialização
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("brand-name").innerText = CONFIG.nomeLoja;
+      document.getElementById("footer-brand").innerText = CONFIG.nomeLoja;
+      document.getElementById("year").innerText = new Date().getFullYear();
+      document.getElementById("whatsapp-header-btn").href = `https://wa.me/${CONFIG.whatsappNumero}?text=${encodeURIComponent("Olá! Gostaria de tirar uma dúvida sobre a loja.")}`;
+
+      renderCategorias();
+      renderProdutos();
+      lucide.createIcons();
+
+      // Evento de busca
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        termoBusca = e.target.value.toLowerCase();
+        renderProdutos();
+      });
+    });
+
+    // Renderiza as tags de categoria
+    function renderCategorias() {
+      const categorias = ["Todas", ...new Set(PRODUTOS.map(p => p.categoria))];
+      const container = document.getElementById("category-filters");
+      container.innerHTML = "";
+
+      categorias.forEach(cat => {
+        const btn = document.createElement("button");
+        const isActive = cat === categoriaAtiva;
+        btn.className = `px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+          isActive 
+            ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold" 
+            : "bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
+        }`;
+        btn.innerText = cat;
+        btn.onclick = () => {
+          categoriaAtiva = cat;
+          renderCategorias();
+          renderProdutos();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    // Renderiza o grid de produtos
+    function renderProdutos() {
+      const grid = document.getElementById("products-grid");
+      const emptyState = document.getElementById("empty-state");
+      grid.innerHTML = "";
+
+      const filtrados = PRODUTOS.filter(produto => {
+        const matchCategoria = categoriaAtiva === "Todas" || produto.categoria === categoriaAtiva;
+        const matchBusca = produto.titulo.toLowerCase().includes(termoBusca) || produto.descricao.toLowerCase().includes(termoBusca);
+        return matchCategoria && matchBusca;
+      });
+
+      if (filtrados.length === 0) {
+        emptyState.classList.remove("hidden");
+        return;
+      }
+      emptyState.classList.add("hidden");
+
+      filtrados.forEach(produto => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 border border-slate-800/80 rounded-2xl overflow-hidden flex flex-col hover:border-slate-700 transition duration-300 group";
+        
+        card.innerHTML = `
+          <!-- Imagem clicável -->
+          <div class="relative overflow-hidden cursor-pointer aspect-video sm:aspect-square bg-slate-800" onclick="openPixModal(${produto.id})">
+            <img 
+              src="${produto.imagem}" 
+              alt="${produto.titulo}" 
+              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-300">
+              <span class="bg-emerald-500 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5"></i> Comprar via PIX
+              </span>
+            </div>
+            <span class="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-md text-[10px] text-slate-300 font-semibold px-2 py-0.5 rounded-full border border-slate-700/60">
+              ${produto.categoria}
+            </span>
+          </div>
+
+          <!-- Conteúdo -->
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-slate-100 text-sm leading-snug line-clamp-2 hover:text-emerald-400 transition cursor-pointer" onclick="openPixModal(${produto.id})">
+                ${produto.titulo}
+              </h3>
+              <p class="text-xs text-slate-400 mt-1 line-clamp-2">${produto.descricao}</p>
+            </div>
+
+            <div class="pt-4 mt-2 border-t border-slate-800/60 flex items-center justify-between gap-2">
+              <div>
+                <span class="text-[10px] text-slate-500 uppercase block font-semibold tracking-wider">Preço à vista</span>
+                <span class="text-base font-extrabold text-emerald-400">
+                  ${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </span>
+              </div>
+              <button 
+                onclick="openPixModal(${produto.id})" 
+                class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow-lg shadow-emerald-950/40"
+              >
+                <i data-lucide="qr-code" class="w-4 h-4"></i>
+                <span>Pagar PIX</span>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Modal de Pagamento
+    function openPixModal(produtoId) {
+      const produto = PRODUTOS.find(p => p.id === produtoId);
+      if (!produto) return;
+
+      document.getElementById("modal-product-img").src = produto.imagem;
+      document.getElementById("modal-product-title").innerText = produto.titulo;
+      document.getElementById("modal-product-price").innerText = produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      
+      const codigoPix = produto.pixCopiaECola || CONFIG.chavePixPadrao;
+      document.getElementById("pix-code-input").value = codigoPix;
+
+      // Link direto se existir
+      const btnLink = document.getElementById("modal-direct-link");
+      if (produto.linkCheckout) {
+        btnLink.href = produto.linkCheckout;
+        btnLink.classList.remove("hidden");
+      } else {
+        btnLink.classList.add("hidden");
+      }
+
+      // Link confirmação WhatsApp
+      const textoZap = `Olá! Acabei de fazer o PIX de ${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} referente ao produto: *${produto.titulo}*. Segue o comprovante:`;
+      document.getElementById("modal-whatsapp-confirm").href = `https://wa.me/${CONFIG.whatsappNumero}?text=${encodeURIComponent(textoZap)}`;
+
+      // Gerar QR Code
+      const qrContainer = document.getElementById("qrcode-container");
+      qrContainer.innerHTML = "";
+      qrcodeInstance = new QRCode(qrContainer, {
+        text: codigoPix,
+        width: 170,
+        height: 170,
+        colorDark: "#020617",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      const modal = document.getElementById("pix-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      lucide.createIcons();
+    }
+
+    function closePixModal() {
+      const modal = document.getElementById("pix-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "auto";
+    }
+
+    // Copiar código PIX
+    function copyPixCode() {
+      const input = document.getElementById("pix-code-input");
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value);
+
+      const btnText = document.getElementById("copy-btn-text");
+      const originalText = btnText.innerText;
+      btnText.innerText = "Copiado!";
+      setTimeout(() => {
+        btnText.innerText = originalText;
+      }, 2000);
+    }
+
+    // Fechar modal clicando fora
+    window.onclick = function(event) {
+      const modal = document.getElementById("pix-modal");
+      if (event.target === modal) {
+        closePixModal();
+      }
+    };
+  </script>
+</body>
+</html>
